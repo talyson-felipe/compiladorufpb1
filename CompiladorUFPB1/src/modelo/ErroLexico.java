@@ -42,4 +42,8 @@ public class ErroLexico implements Erro {
         this.token = token;
     }
 
+    @Override
+    public String toString(){
+        return "Erro: ["+ token+ ", " + tipoErro + "]";
+    }
 }
