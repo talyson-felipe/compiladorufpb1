@@ -8,7 +8,7 @@
  *
  * Created on 07/04/2010, 22:01:36
  */
-package compiladorufpb1;
+package tela;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -73,7 +73,7 @@ public class Janela extends javax.swing.JFrame {
         textoErro.setRows(5);
         jScrollPane2.setViewportView(textoErro);
 
-        analisar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/compiladorufpb1/icons/lupa.png"))); // NOI18N
+        analisar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/tela/icons/lupa.png"))); // NOI18N
         analisar.setToolTipText("Analisar texto");
         analisar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
