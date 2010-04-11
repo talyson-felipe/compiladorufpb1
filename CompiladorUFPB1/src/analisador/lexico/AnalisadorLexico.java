@@ -6,9 +6,12 @@
 package analisador.lexico;
 
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 import modelo.Erro;
+import modelo.ErroLexico;
 import modelo.Token;
+import modelo.tipos.TipoErroLexico;
 import modelo.tipos.TipoToken;
 
 /**
@@ -17,73 +20,39 @@ import modelo.tipos.TipoToken;
  */
 public class AnalisadorLexico {
 
-    private static final String regexReal = "[0-9]+\\.[0-9]*";
-    private static final String regexInteiro = "[0-9]+";
-    private static final String regexPalavras = "[a-zA-Z]+|[a-z]+|[A-Z]+";
-    private static final String regexComentario = "{[\\p{Graph}]+}";
-    private static final String regexAritmetico = "+|-|\\*|/";
-    private static final String regexRelacional = "";
-    private static final String regexAtribuicao = "";
-    private static final String regexDelimitador = "";
-    // TODO botar regex ausente
-
+    // Ver PDF associado aos estados do analisador léxico para mais informações.
+    private ResourceBundle regexEstadosAnalisadorLexico;
 
     private String codigoFonte;
     private List<Erro> erros;
     private List<Token> tokens;
     private int numeroDaLinha;
+    private String token = "";
+    private Integer index = 0;
 
     public AnalisadorLexico() {
         super();
+        regexEstadosAnalisadorLexico = ResourceBundle.getBundle("analisador.lexico.properties.regex.properties");
     }
 
     public void analisar() {
-        int index = 0;
-        String token = "";
+        
+        index = numeroDaLinha = 0;
         
         while(index < codigoFonte.length()) {
             Character atual = codigoFonte.charAt(index);
             
-            if (atual.equals(' ')) {
-                token += atual;
-
-                if (Pattern.matches(regexPalavras, token)) {
-                    construirPalavra(token, numeroDaLinha);
-                } else if (Pattern.matches(regexInteiro, token)) {
-                    construirNumeroInteiro(token, numeroDaLinha);
-                } else if (Pattern.matches(regexReal, token)) {
-                    construirNumeroReal(token, numeroDaLinha);
-                } else if (Pattern.matches(regexAritmetico, token)) {
-                    construirOperadorAritmetico(token, numeroDaLinha);
-                } else if (Pattern.matches(regexDelimitador, token)) {
-                    construirDelimitador(token, numeroDaLinha);
-                } else if (Pattern.matches(regexComentario, token)) {
-                    construirComentario(token, numeroDaLinha);
-                } else if (Pattern.matches(regexRelacional, token)) {
-                    construirRelacional(token, numeroDaLinha);
-                } else if (Pattern.matches(regexAtribuicao, token)) {
-                    construirAtribuicao(token, numeroDaLinha);
-                }
-
-                // TODO botar regex ausente
+            if (atual.equals(' ') || atual.equals('\f') || atual.equals('\t')) {
                 token = "";
-            } else if (atual.equals('\n')) {
-                token += atual;
-                numeroDaLinha++;
-
-                if (Pattern.matches(regexPalavras, token)) {
-                    construirPalavra(token, numeroDaLinha);
-                } else if (Pattern.matches(regexInteiro, token)) {
-                    construirNumeroInteiro(token, numeroDaLinha);
-                } else if (Pattern.matches(regexReal, token)) {
-                    construirNumeroReal(token, numeroDaLinha);
-                } else if (Pattern.matches(regexAritmetico, token)) {
-                    construirOperadorAritmetico(token, numeroDaLinha);
-                }
-                // TODO botar regex ausente
-                token = "";
-            } else
                 index++;
+            } else if (atual.equals('\n')) {
+                numeroDaLinha++;
+                token = "";
+                index++;
+            } else if (Pattern.matches(regexEstadosAnalisadorLexico.getString("i0A"), atual.toString())) {
+                estadoA();
+            }
+
         }
     }
 
@@ -101,6 +70,100 @@ public class AnalisadorLexico {
 
     public List<Token> getTokens(){
         return tokens;
+    }
+
+    private void estadoA(){
+        String atual = ((Character) codigoFonte.charAt(++index)).toString();
+        if (Pattern.matches(regexEstadosAnalisadorLexico.getString("AA"), atual)) {
+            estadoA();
+        } else {
+            construirPalavra(token, numeroDaLinha);
+        }
+    }
+
+    private void estadoB(){
+        String atual = ((Character) codigoFonte.charAt(++index)).toString();
+        if (Pattern.matches(regexEstadosAnalisadorLexico.getString("BB"), atual)) {
+            estadoA();
+        } else if (Pattern.matches(regexEstadosAnalisadorLexico.getString("BC"), atual)) {
+            estadoC();
+        } else {
+            construirNumeroReal(token, numeroDaLinha);
+        }
+    }
+
+    private void estadoC(){
+        String atual = ((Character) codigoFonte.charAt(++index)).toString();
+        if (Pattern.matches(regexEstadosAnalisadorLexico.getString("CC"), atual)) {
+            estadoC();
+        } else {
+            construirNumeroInteiro(token, numeroDaLinha);
+        }
+    }
+
+    private void estadoD(){
+        construirOperadorAritmetico(token, numeroDaLinha);
+    }
+
+    private void estadoE(){
+        String atual = ((Character) codigoFonte.charAt(++index)).toString();
+        if (Pattern.matches(regexEstadosAnalisadorLexico.getString("EF"), atual)){
+            estadoF();
+        } else {
+            construirDelimitador(token, numeroDaLinha);
+        }
+    }
+
+    private void estadoF(){
+        construirAtribuicao(token, numeroDaLinha);
+    }
+
+    private void estadoG(){
+        String atual = ((Character) codigoFonte.charAt(++index)).toString();
+        if (Pattern.matches(regexEstadosAnalisadorLexico.getString("GH"), atual)){
+            estadoH();
+        } else {
+            construirRelacional(token, numeroDaLinha);
+        }
+    }
+
+    private void estadoH(){
+        construirRelacional(token, numeroDaLinha);
+    }
+
+    private void estadoI(){
+        String atual = ((Character) codigoFonte.charAt(++index)).toString();
+        if (Pattern.matches(regexEstadosAnalisadorLexico.getString("GH"), atual)){
+            estadoJ();
+        } else {
+            construirRelacional(token, numeroDaLinha);
+        }
+    }
+
+    private void estadoJ(){
+        construirRelacional(token, numeroDaLinha);
+    }
+
+    private void estadoL(){
+        construirDelimitador(token, numeroDaLinha);
+    }
+
+    private void estadoi1(){
+        String atual = ((Character) codigoFonte.charAt(++index)).toString();
+
+        try {
+            if (Pattern.matches(regexEstadosAnalisadorLexico.getString("i1M"), atual)) {
+                estadoM();
+            } else {
+                estadoi1();
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            erros.add(new ErroLexico(construirTokenErroLexico(token, numeroDaLinha), TipoErroLexico.COMENTARIO_ABERTO));
+        }
+    }
+
+    private void estadoM(){
+
     }
 
     private void construirPalavra(String token, int numeroDaLinha) {
@@ -145,5 +208,8 @@ public class AnalisadorLexico {
         tokens.add(new Token(token, TipoToken.COMANDO_ATRIBUICAO, numeroDaLinha));
     }
 
+    private Token construirTokenErroLexico(String token, int numeroDaLinha){
+        return new Token(token, TipoToken.INVALIDO, numeroDaLinha);
+    }
 
 }
