@@ -20,6 +20,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import analisador.lexico.AnalisadorLexico;
+import java.util.List;
+import java.util.ListIterator;
+import modelo.Token;
 
 /**
  *
@@ -28,7 +32,9 @@ import javax.swing.JOptionPane;
 public class Janela extends javax.swing.JFrame {
 
     private JFileChooser fc;
-    public char[] caracteres = null;
+    private char[] caracteres = null;
+    private List<Token> tokens;
+    File arquivo = null;
 
     /** Creates new form interfac */
     public Janela() {
@@ -196,38 +202,69 @@ public class Janela extends javax.swing.JFrame {
 
     private void analisarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_analisarActionPerformed
         // TODO add your handling code here:
-        AnalisadorLexico analisador = new AnalisadorLexico();
-        
-        analisador.setCodigoFonte(textoCodigo.getText());
-        analisador.analisar();
 
+        if (arquivo != null) {
+            System.out.println("Ronaldo");
+            AnalisadorLexico analisador = new AnalisadorLexico();
 
-        
+            analisador.setCodigoFonte(textoCodigo.getText());
+            analisador.analisar();
+
+            //Depois de te feito toda analise lexica
+
+            //Pega lista de tokens
+            tokens = analisador.getTokens();
+
+            //Exibe na tabela a lista de tokens
+            InserirTabela(tokens);
+        }
+        else
+            JOptionPane.showMessageDialog(null, "Primeiro carregue um arquivo", "Erro", JOptionPane.ERROR_MESSAGE);
     }//GEN-LAST:event_analisarActionPerformed
 
     /**
      * @param args the command line arguments
      */
+    public void InserirTabela(List<Token> list) {
+        Token token;
+        javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) textoTabela.getModel();
+
+        while (textoTabela.getRowCount() > 0) {
+            model.removeRow(0);
+        }
+
+        for (int i = 0; i < list.size(); i++) {
+            token = list.get(i);
+            model.addRow(new Object[]{token.getToken(), token.getSimbolo(), token.getLinha()});
+        }
+
+    }
+
     public void AbrirArquivo() throws FileNotFoundException, IOException {
         fc = new JFileChooser();
-        String linha;
+        String linha, nome;
+        int tam = 0;
         int resultado = fc.showOpenDialog(null);
 
-        //System.out.println("Print: " + arq.getSelectedFile().getAbsolutePath());
-        //System.out.println("Resultado: " + resultado);
         if (resultado == JFileChooser.APPROVE_OPTION) {
-            File arquivo = fc.getSelectedFile();
+            arquivo = fc.getSelectedFile();
+            nome = arquivo.getName();
+            tam = (int) nome.length();
+            if ((nome.substring(tam - 3, tam).equals("txt"))) {
 
-            FileReader ler = new FileReader(arquivo);
-            BufferedReader leitor = new BufferedReader(ler);
+                FileReader ler = new FileReader(arquivo);
+                BufferedReader leitor = new BufferedReader(ler);
 
-            while ((linha = leitor.readLine()) != null) {
-                textoCodigo.append(linha + "\n");
-                textoCodigo.setCaretPosition(textoCodigo.getText().length());
+                while ((linha = leitor.readLine()) != null) {
+                    textoCodigo.append(linha + "\n");
+                    textoCodigo.setCaretPosition(textoCodigo.getText().length());
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "O arquivo não é válido", "Erro", JOptionPane.ERROR_MESSAGE);
+                arquivo = null;
             }
-
         } else {
-            JOptionPane.showMessageDialog(null, "Voce nao selecionou nenhum arquivo.");
+            JOptionPane.showMessageDialog(null, "Nenhum arquivo selecionado", "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
 
