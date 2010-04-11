@@ -10,6 +10,7 @@
  */
 package tela;
 
+import analisador.lexico.AnalisadorLexico;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -195,10 +196,12 @@ public class Janela extends javax.swing.JFrame {
 
     private void analisarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_analisarActionPerformed
         // TODO add your handling code here:
-        String texto;
+        AnalisadorLexico analisador = new AnalisadorLexico();
         
-        texto = textoCodigo.getText();
-        caracteres = texto.toCharArray();
+        analisador.setCodigoFonte(textoCodigo.getText());
+        analisador.analisar();
+
+
         
     }//GEN-LAST:event_analisarActionPerformed
 
