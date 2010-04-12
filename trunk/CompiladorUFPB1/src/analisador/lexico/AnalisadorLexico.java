@@ -129,6 +129,23 @@ public class AnalisadorLexico {
     public List<Token> getTokens(){
         return tokens;
     }
+    public String errosToString(){
+        String erroString="";
+        for(Erro erro:erros){
+            if(erro instanceof ErroLexico){
+                ErroLexico erroLexico =(ErroLexico)erro;
+                switch(erroLexico.getTipoErro()){
+                    case COMENTARIO_ABERTO:
+                        erroString.concat("Erro(Linha "+erroLexico.getToken().getLinha()+" ): Comentário Aberto./n");
+                        break;
+                    case SIMBOLO_INEXISTENTE:     
+                        erroString.concat("Erro(Linha "+erroLexico.getToken().getLinha()+" ): O Simbolo encontrado não existe!/n");
+                        break;
+                }
+            }
+         }
+            return erroString;
+    }
 
     private void estadoA(){
         nextChar();
