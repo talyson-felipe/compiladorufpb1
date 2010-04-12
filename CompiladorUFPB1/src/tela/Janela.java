@@ -22,7 +22,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import analisador.lexico.AnalisadorLexico;
 import java.util.List;
-import java.util.ListIterator;
 import modelo.Token;
 
 /**
