@@ -28,6 +28,8 @@ public class AnalisadorLexico {
     private List<Erro> erros;
     private List<Token> tokens;
     private int numeroDaLinha;
+    private int linhaDoUltimoComentarioAberto;
+    private boolean comentarioAberto;
     private String token = "";
     private Integer index = 0;
     private String atual;
@@ -136,10 +138,10 @@ public class AnalisadorLexico {
                 ErroLexico erroLexico =(ErroLexico)erro;
                 switch(erroLexico.getTipoErro()){
                     case COMENTARIO_ABERTO:
-                        erroString.concat("Erro(Linha "+erroLexico.getToken().getLinha()+" ): Comentário Aberto./n");
+                        erroString += "Comentário iniciado na linha "+erroLexico.getToken().getLinha()+" não fechado devidamente.\n";
                         break;
                     case SIMBOLO_INEXISTENTE:     
-                        erroString.concat("Erro(Linha "+erroLexico.getToken().getLinha()+" ): O Simbolo encontrado não existe!/n");
+                        erroString += "O símbolo encontrado \"" + erroLexico.getToken().getToken() + "\" na linha "+erroLexico.getToken().getLinha()+" não é reconhecido.\n";
                         break;
                 }
             }
@@ -237,22 +239,30 @@ public class AnalisadorLexico {
 
     private void estadoi1(){
         nextChar();
+        if (!comentarioAberto){
+            linhaDoUltimoComentarioAberto = numeroDaLinha;
+            comentarioAberto = true;
+        }
 
-        try {
-            if (Pattern.matches(regexEstadosAnalisadorLexico.getString("i1M"), currentChar())) {
-                token += currentChar();
-                estadoM();
-            } else {
-                token += currentChar();
-                estadoi1();
-            }
-        } catch (ArrayIndexOutOfBoundsException e) {
+        if (currentChar().equals("FIM DO FONTE")){
             erros.add(new ErroLexico(construirTokenErroLexico(token, numeroDaLinha), TipoErroLexico.COMENTARIO_ABERTO));
+            return;
+        }
+        if (currentChar().equals("\n")){
+            numeroDaLinha++;
+        }
+        if (Pattern.matches(regexEstadosAnalisadorLexico.getString("i1M"), currentChar())) {
+            token += currentChar();
+            estadoM();
+        } else {
+            token += currentChar();
+            estadoi1();
         }
     }
 
     private void estadoM(){
-
+        nextChar();
+        comentarioAberto = false;
     }
 
     private void estadoN(){

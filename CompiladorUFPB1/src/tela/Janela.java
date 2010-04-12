@@ -10,7 +10,6 @@
  */
 package tela;
 
-import analisador.lexico.AnalisadorLexico;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -219,7 +218,9 @@ public class Janela extends javax.swing.JFrame {
 
             //Exibe na tabela a lista de tokens
             InserirTabela(tokens);
-            //mostraErros(analisador.errosToString());
+
+            // Exibe na tela erros do analisador.
+            textoErro.setText(analisador.errosToString());
 
         }
         else
@@ -272,10 +273,7 @@ public class Janela extends javax.swing.JFrame {
         }
     }
 
-    public void mostraErros(String erros){
-        textoErro.setText(erros);
-    }
-        public static void main(String args[]) {
+    public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
 
             public void run() {
