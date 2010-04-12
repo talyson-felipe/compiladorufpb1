@@ -34,7 +34,6 @@ public class Janela extends javax.swing.JFrame {
     private char[] caracteres = null;
     private List<Token> tokens;
     File arquivo = null;
-
     /** Creates new form interfac */
     public Janela() {
         initComponents();
@@ -72,11 +71,15 @@ public class Janela extends javax.swing.JFrame {
 
         textoCodigo.setColumns(20);
         textoCodigo.setRows(5);
+        textoCodigo.setBorder(javax.swing.BorderFactory.createTitledBorder("Código Fonte"));
         textoCodigo.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
         jScrollPane1.setViewportView(textoCodigo);
 
         textoErro.setColumns(20);
+        textoErro.setEditable(false);
+        textoErro.setForeground(new java.awt.Color(255, 0, 0));
         textoErro.setRows(5);
+        textoErro.setBorder(javax.swing.BorderFactory.createTitledBorder("Erros"));
         jScrollPane2.setViewportView(textoErro);
 
         analisar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/tela/icons/lupa.png"))); // NOI18N
@@ -153,12 +156,12 @@ public class Janela extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(separador1, javax.swing.GroupLayout.DEFAULT_SIZE, 747, Short.MAX_VALUE)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 352, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
                                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 377, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 747, Short.MAX_VALUE)))
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 747, Short.MAX_VALUE)
+                            .addComponent(separador1, javax.swing.GroupLayout.DEFAULT_SIZE, 747, Short.MAX_VALUE)))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(319, 319, 319)
                         .addComponent(analisar, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -216,6 +219,8 @@ public class Janela extends javax.swing.JFrame {
 
             //Exibe na tabela a lista de tokens
             InserirTabela(tokens);
+            //mostraErros(analisador.errosToString());
+
         }
         else
             JOptionPane.showMessageDialog(null, "Primeiro carregue um arquivo", "Erro", JOptionPane.ERROR_MESSAGE);
@@ -267,7 +272,10 @@ public class Janela extends javax.swing.JFrame {
         }
     }
 
-    public static void main(String args[]) {
+    public void mostraErros(String erros){
+        textoErro.setText(erros);
+    }
+        public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
 
             public void run() {
