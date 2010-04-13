@@ -21,6 +21,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import analisador.lexico.AnalisadorLexico;
 import java.util.List;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import modelo.Token;
 
 /**
@@ -32,11 +33,15 @@ public class Janela extends javax.swing.JFrame {
     private JFileChooser fc;
     private char[] caracteres = null;
     private List<Token> tokens;
-    File arquivo = null;
+    private File arquivo = null;
+
+    private AnalisadorLexico analisador;
+
     /** Creates new form interfac */
     public Janela() {
         initComponents();
         this.setLocationRelativeTo(null);
+        analisador = new AnalisadorLexico();
     }
 
     /** This method is called from within the constructor to
@@ -203,11 +208,8 @@ public class Janela extends javax.swing.JFrame {
 
     private void analisarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_analisarActionPerformed
         // TODO add your handling code here:
-
+      
         if (arquivo != null) {
-            System.out.println("Ronaldo");
-            AnalisadorLexico analisador = new AnalisadorLexico();
-
             analisador.setCodigoFonte(textoCodigo.getText());
             analisador.analisar();
 
@@ -222,9 +224,22 @@ public class Janela extends javax.swing.JFrame {
             // Exibe na tela erros do analisador.
             textoErro.setText(analisador.errosToString());
 
-        }
-        else
-            JOptionPane.showMessageDialog(null, "Primeiro carregue um arquivo", "Erro", JOptionPane.ERROR_MESSAGE);
+        } else if (!textoCodigo.getText().equals("")) {
+            analisador.setCodigoFonte(textoCodigo.getText());
+            analisador.analisar();
+
+            //Depois de te feito toda analise lexica
+
+            //Pega lista de tokens
+            tokens = analisador.getTokens();
+
+            //Exibe na tabela a lista de tokens
+            InserirTabela(tokens);
+
+            // Exibe na tela erros do analisador.
+            textoErro.setText(analisador.errosToString());
+        } else
+            JOptionPane.showMessageDialog(this, "Carregue um arquivo ou digite o código.", "Erro", JOptionPane.ERROR_MESSAGE);
     }//GEN-LAST:event_analisarActionPerformed
 
     /**
@@ -247,29 +262,25 @@ public class Janela extends javax.swing.JFrame {
 
     public void AbrirArquivo() throws FileNotFoundException, IOException {
         fc = new JFileChooser();
+        fc.setFileFilter(new FileNameExtensionFilter("Arquivos de texto (*.txt)", "txt"));
         String linha, nome;
         int tam = 0;
-        int resultado = fc.showOpenDialog(null);
+        int resultado = fc.showOpenDialog(this);
 
         if (resultado == JFileChooser.APPROVE_OPTION) {
             arquivo = fc.getSelectedFile();
             nome = arquivo.getName();
             tam = (int) nome.length();
-            if ((nome.substring(tam - 3, tam).equals("txt"))) {
+            
+            FileReader ler = new FileReader(arquivo);
+            BufferedReader leitor = new BufferedReader(ler);
 
-                FileReader ler = new FileReader(arquivo);
-                BufferedReader leitor = new BufferedReader(ler);
-
-                while ((linha = leitor.readLine()) != null) {
-                    textoCodigo.append(linha + "\n");
-                    textoCodigo.setCaretPosition(textoCodigo.getText().length());
-                }
-            } else {
-                JOptionPane.showMessageDialog(null, "O arquivo não é válido", "Erro", JOptionPane.ERROR_MESSAGE);
-                arquivo = null;
+            while ((linha = leitor.readLine()) != null) {
+                textoCodigo.append(linha + "\n");
+                textoCodigo.setCaretPosition(textoCodigo.getText().length());
             }
         } else {
-            JOptionPane.showMessageDialog(null, "Nenhum arquivo selecionado", "Erro", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Nenhum arquivo selecionado", "Ops!", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
