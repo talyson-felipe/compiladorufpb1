@@ -19,7 +19,7 @@ public class PalavrasReservadas {
     private static PalavrasReservadas instance;
 
     private PalavrasReservadas(){
-        palavrasReservadas = new ArrayList<String>();
+        palavrasReservadas = new ArrayList<String>(13);
         palavrasReservadas.add("program");
         palavrasReservadas.add("var");
         palavrasReservadas.add("integer");
@@ -35,19 +35,14 @@ public class PalavrasReservadas {
         palavrasReservadas.add("do");
     }
 
-    public static PalavrasReservadas getInstance(){
+    public static PalavrasReservadas getInstance() {
         if (instance == null) {
             instance = new PalavrasReservadas();
         }
         return instance;
     }
 
-    public boolean isPalavraReservada(String token){
-        for(String palavraReservada: palavrasReservadas){
-            if (palavraReservada.equals(token)){
-                return true;
-            }
-        }
-        return false;
+    public boolean isPalavraReservada(String token) {
+        return palavrasReservadas.contains(token);
     }
 }
