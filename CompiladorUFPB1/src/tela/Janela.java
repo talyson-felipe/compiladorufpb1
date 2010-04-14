@@ -191,13 +191,11 @@ public class Janela extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void exitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitActionPerformed
-        // TODO add your handling code here:
         System.exit(0);
     }//GEN-LAST:event_exitActionPerformed
 
     private void openActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openActionPerformed
         try {
-            // TODO add your handling code here:
             AbrirArquivo();
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Janela.class.getName()).log(Level.SEVERE, null, ex);
@@ -207,24 +205,7 @@ public class Janela extends javax.swing.JFrame {
     }//GEN-LAST:event_openActionPerformed
 
     private void analisarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_analisarActionPerformed
-        // TODO add your handling code here:
-      
-        if (arquivo != null) {
-            analisador.setCodigoFonte(textoCodigo.getText());
-            analisador.analisar();
-
-            //Depois de te feito toda analise lexica
-
-            //Pega lista de tokens
-            tokens = analisador.getTokens();
-
-            //Exibe na tabela a lista de tokens
-            InserirTabela(tokens);
-
-            // Exibe na tela erros do analisador.
-            textoErro.setText(analisador.errosToString());
-
-        } else if (!textoCodigo.getText().equals("")) {
+        if (!textoCodigo.getText().equals("")) {
             analisador.setCodigoFonte(textoCodigo.getText());
             analisador.analisar();
 
@@ -279,6 +260,9 @@ public class Janela extends javax.swing.JFrame {
                 textoCodigo.append(linha + "\n");
                 textoCodigo.setCaretPosition(textoCodigo.getText().length());
             }
+
+            leitor.close();
+            ler.close();
         } else {
             JOptionPane.showMessageDialog(this, "Nenhum arquivo selecionado", "Ops!", JOptionPane.INFORMATION_MESSAGE);
         }
