@@ -205,7 +205,7 @@ public class Janela extends javax.swing.JFrame {
     }//GEN-LAST:event_openActionPerformed
 
     private void analisarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_analisarActionPerformed
-        if (!textoCodigo.getText().equals("")) {
+        
             analisador.setCodigoFonte(textoCodigo.getText());
             analisador.analisar();
 
@@ -219,8 +219,7 @@ public class Janela extends javax.swing.JFrame {
 
             // Exibe na tela erros do analisador.
             textoErro.setText(analisador.errosToString());
-        } else
-            JOptionPane.showMessageDialog(this, "Carregue um arquivo ou digite o código.", "Erro", JOptionPane.ERROR_MESSAGE);
+
     }//GEN-LAST:event_analisarActionPerformed
 
     /**
