@@ -245,7 +245,7 @@ public class AnalisadorLexico {
         }
 
         if (currentChar().equals("FIM DO FONTE")){
-            erros.add(new ErroLexico(construirTokenErroLexico(token, numeroDaLinha), TipoErroLexico.COMENTARIO_ABERTO));
+            erros.add(new ErroLexico(construirTokenErroLexico(token, linhaDoUltimoComentarioAberto), TipoErroLexico.COMENTARIO_ABERTO));
             return;
         }
         if (currentChar().equals("\n")){
