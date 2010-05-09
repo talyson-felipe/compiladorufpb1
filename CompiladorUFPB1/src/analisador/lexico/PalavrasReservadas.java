@@ -33,6 +33,10 @@ public class PalavrasReservadas {
         palavrasReservadas.add("else");
         palavrasReservadas.add("while");
         palavrasReservadas.add("do");
+        palavrasReservadas.add("true");
+        palavrasReservadas.add("false");
+        palavrasReservadas.add("not");
+        palavrasReservadas.add("and");
     }
 
     public static PalavrasReservadas getInstance() {
