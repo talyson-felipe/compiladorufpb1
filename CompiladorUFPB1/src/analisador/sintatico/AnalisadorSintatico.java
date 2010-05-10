@@ -1,7 +1,11 @@
 package analisador.sintatico;
 
+import java.util.ArrayList;
 import java.util.List;
+import modelo.ErroSintatico;
 import modelo.Token;
+import modelo.Erro;
+import modelo.tipos.TipoErroSintatico;
 import modelo.tipos.TipoToken;
 
 /**
@@ -16,9 +20,12 @@ public class AnalisadorSintatico {
         this.tokens = tokens;
     }
 
-    
+    public List<Erro> analisar(){
+        List<Erro> erros = new ArrayList<Erro>();
+        return erros;
+    }
 
-    public void programa(){
+    public void programa() throws ErroSintatico {
         consumir(TipoToken.PALAVRA_RESERVADA, "program");
         consumir(TipoToken.IDENTIFICADOR);
         consumir(TipoToken.DELIMITADOR);
@@ -28,14 +35,14 @@ public class AnalisadorSintatico {
         consumir(TipoToken.DELIMITADOR, ".");
     }
 
-    public void declaracoesDeVariaveis(){
+    public void declaracoesDeVariaveis() throws ErroSintatico {
         consumir(TipoToken.PALAVRA_RESERVADA, "var");
         listaDeDeclaracoesDeVariaveis();
         // OU
         return; // vazio
     }
 
-    public void listaDeDeclaracoesDeVariaveis(){
+    public void listaDeDeclaracoesDeVariaveis() throws ErroSintatico {
         listaDeIdentificadores();
         consumir(TipoToken.DELIMITADOR, ":");
         tipo();
@@ -44,7 +51,7 @@ public class AnalisadorSintatico {
 
     }
 
-    public void listaDeDeclaracoesDeVariaveis1(){
+    public void listaDeDeclaracoesDeVariaveis1() throws ErroSintatico {
 
         listaDeIdentificadores();
         consumir(TipoToken.DELIMITADOR, ":");
@@ -55,13 +62,13 @@ public class AnalisadorSintatico {
         return; // vazio
     }
 
-    public void listaDeIdentificadores(){
+    public void listaDeIdentificadores() throws ErroSintatico {
 
         consumir(TipoToken.IDENTIFICADOR);
         listaDeIdentificadores1();
     }
 
-    public void listaDeIdentificadores1(){
+    public void listaDeIdentificadores1() throws ErroSintatico {
 
         consumir(TipoToken.DELIMITADOR, ",");
         consumir(TipoToken.IDENTIFICADOR);
@@ -71,7 +78,7 @@ public class AnalisadorSintatico {
         
     }
 
-    public void tipo(){
+    public void tipo() throws ErroSintatico {
         consumir(TipoToken.PALAVRA_RESERVADA, "integer");
         // OU
         consumir(TipoToken.PALAVRA_RESERVADA, "real");
@@ -79,7 +86,7 @@ public class AnalisadorSintatico {
         consumir(TipoToken.PALAVRA_RESERVADA, "boolean");
     }
 
-    public void declaracoesDeSubprogramas(){
+    public void declaracoesDeSubprogramas() throws ErroSintatico {
         declaracaoDeSubprograma();
         consumir(TipoToken.DELIMITADOR, ";");
         declaracoesDeSubprogramas();
@@ -87,7 +94,7 @@ public class AnalisadorSintatico {
         return; // vazio
     }
 
-    public void declaracaoDeSubprograma(){
+    public void declaracaoDeSubprograma() throws ErroSintatico {
         consumir(TipoToken.PALAVRA_RESERVADA, "procedure");
         consumir(TipoToken.IDENTIFICADOR);
         argumentos();
@@ -97,7 +104,7 @@ public class AnalisadorSintatico {
         comandoComposto();
     }
 
-    public void argumentos(){
+    public void argumentos() throws ErroSintatico {
         consumir(TipoToken.DELIMITADOR, "(");
         listaDeParametros();
         consumir(TipoToken.DELIMITADOR, ")");
@@ -105,14 +112,14 @@ public class AnalisadorSintatico {
         return; // vazio
     }
 
-    public void listaDeParametros(){
+    public void listaDeParametros() throws ErroSintatico {
         listaDeIdentificadores();
         consumir(TipoToken.DELIMITADOR, ":");
         tipo();
         listaDeParametros1();
     }
 
-    public void listaDeParametros1(){
+    public void listaDeParametros1() throws ErroSintatico {
         consumir(TipoToken.DELIMITADOR, ";");
         listaDeIdentificadores();
         consumir(TipoToken.DELIMITADOR, ":");
@@ -122,24 +129,24 @@ public class AnalisadorSintatico {
         return; //vazio
     }
 
-    public void comandoComposto(){
+    public void comandoComposto() throws ErroSintatico {
         consumir(TipoToken.PALAVRA_RESERVADA, "begin");
         comandosOpcionais();
         consumir(TipoToken.PALAVRA_RESERVADA, "end");
     }
 
-    public void comandosOpcionais(){
+    public void comandosOpcionais() throws ErroSintatico {
         listaDeComandos();
         // OU
         return; // vazio
     }
 
-    public void listaDeComandos(){
+    public void listaDeComandos() throws ErroSintatico {
         comando();
         listaDeComandos1();
     }
 
-    public void listaDeComandos1(){
+    public void listaDeComandos1() throws ErroSintatico {
         consumir(TipoToken.DELIMITADOR, ";");
         comando();
         listaDeComandos1();
@@ -147,7 +154,7 @@ public class AnalisadorSintatico {
         return; // vazio
     }
 
-    public void comando(){
+    public void comando() throws ErroSintatico {
         variavel();
         consumir(TipoToken.COMANDO_ATRIBUICAO);
         expressao();
@@ -168,18 +175,18 @@ public class AnalisadorSintatico {
         comando();
     }
 
-    public void parteElse(){
+    public void parteElse() throws ErroSintatico {
         consumir(TipoToken.PALAVRA_RESERVADA, "else");
         comando();
         // ou
         return; // vazio
     }
 
-    public void variavel(){
+    public void variavel() throws ErroSintatico {
         consumir(TipoToken.IDENTIFICADOR);
     }
 
-    public void ativacaoDeProcedimento(){
+    public void ativacaoDeProcedimento() throws ErroSintatico {
         consumir(TipoToken.IDENTIFICADOR);
         // ou
         consumir(TipoToken.IDENTIFICADOR);
@@ -188,12 +195,12 @@ public class AnalisadorSintatico {
         consumir(TipoToken.DELIMITADOR, ")");
     }
 
-    public void listaDeExpressoes(){
+    public void listaDeExpressoes() throws ErroSintatico {
         expressao();
         listaDeExpressoes1();
     }
 
-    public void listaDeExpressoes1(){
+    public void listaDeExpressoes1() throws ErroSintatico {
         consumir(TipoToken.DELIMITADOR, ",");
         expressao();
         listaDeExpressoes1();
@@ -201,7 +208,7 @@ public class AnalisadorSintatico {
         return; // vazio
     }
 
-    public void expressao(){
+    public void expressao() throws ErroSintatico {
         expressaoSimples();
         // ou
         expressaoSimples();
@@ -209,7 +216,7 @@ public class AnalisadorSintatico {
         expressaoSimples();
     }
 
-    public void expressaoSimples(){
+    public void expressaoSimples() throws ErroSintatico {
         termo();
         expressaoSimples1();
         // ou
@@ -218,7 +225,7 @@ public class AnalisadorSintatico {
         expressaoSimples1();
     }
 
-    public void expressaoSimples1(){
+    public void expressaoSimples1() throws ErroSintatico {
         operadorAditivo();
         termo();
         expressaoSimples1();
@@ -226,12 +233,12 @@ public class AnalisadorSintatico {
         return; // vazio
     }
 
-    public void termo(){
+    public void termo() throws ErroSintatico {
         fator();
         termo1();
     }
 
-    public void termo1(){
+    public void termo1() throws ErroSintatico {
         operadorMultiplicativo();
         fator();
         termo1();
@@ -239,7 +246,7 @@ public class AnalisadorSintatico {
         return; // vazio
     }
 
-    public void fator(){
+    public void fator() throws ErroSintatico {
         consumir(TipoToken.IDENTIFICADOR);
         // ou
         consumir(TipoToken.IDENTIFICADOR);
@@ -264,44 +271,42 @@ public class AnalisadorSintatico {
 
     }
 
-    public void sinal(){
+    public void sinal() throws ErroSintatico {
         consumir(TipoToken.OPERADOR_ADITIVO);
     }
 
-    public void operadorRelacional(){
+    public void operadorRelacional() throws ErroSintatico {
         consumir(TipoToken.OPERADOR_RELACIONAL);
     }
 
-    public void operadorAditivo(){
+    public void operadorAditivo() throws ErroSintatico {
         consumir(TipoToken.OPERADOR_ADITIVO);
     }
 
-    public void operadorMultiplicativo(){
+    public void operadorMultiplicativo() throws ErroSintatico {
         consumir(TipoToken.OPERADOR_MULTIPLICATIVO);
         // ou
         consumir(TipoToken.PALAVRA_RESERVADA, "and");
     }
 
-    public Boolean consumir(TipoToken token) {
-        return consumir(token, null);
+    public void consumir(TipoToken token) throws ErroSintatico {
+        consumir(token, null);
     }
 
-    public Boolean consumir(TipoToken tipoToken, String tokenName) {
+    public void consumir(TipoToken tipoToken, String tokenName) throws ErroSintatico {
         Token atual = lerTokenDaLista();
         if (atual == null) {
-            return false;
+            throw new ErroSintatico(atual, TipoErroSintatico.FIM_INESPERADO);
         }
         if (atual.getSimbolo() == tipoToken || tokenName == null) {
             consumirTokenDaLista();
-            return true;
         }
         else {
             if (atual.getSimbolo() == tipoToken || atual.getToken().equals(tokenName)) {
                 consumirTokenDaLista();
-                return true;
             }
             else {
-                return false;
+                throw new ErroSintatico(atual, new Token(tokenName, tipoToken, 0), TipoErroSintatico.TOKEN_ESPERADO);
             }
         }
     }

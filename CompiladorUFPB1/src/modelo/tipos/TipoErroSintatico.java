@@ -10,5 +10,6 @@ package modelo.tipos;
  * @author clodbrasilino
  */
 public enum TipoErroSintatico {
-    TOKEN_ESPERADO
+    TOKEN_ESPERADO,
+    FIM_INESPERADO
 }
