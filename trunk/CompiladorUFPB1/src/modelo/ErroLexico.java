@@ -15,7 +15,6 @@ public class ErroLexico implements Erro {
 
     private Token token;
     private TipoErroLexico tipoErro;
-
     public ErroLexico(){
         super();
     }
@@ -43,7 +42,15 @@ public class ErroLexico implements Erro {
     }
 
     @Override
-    public String toString(){
-        return "Erro: ["+ token+ ", " + tipoErro + "]";
+    public String errosToString(){
+        switch(this.getTipoErro()){
+                    case COMENTARIO_ABERTO:
+                        return "Comentário iniciado na linha "+this.getToken().getLinha()+" não fechado devidamente.\n";
+                    case SIMBOLO_INEXISTENTE:
+                        return "O símbolo encontrado \"" + this.getToken().getToken() + "\" na linha "+this.getToken().getLinha()+" não é reconhecido.\n";
+                        //break;
+                }
+        return "";
     }
 }
+
