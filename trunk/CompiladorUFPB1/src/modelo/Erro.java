@@ -10,5 +10,5 @@ package modelo;
  * @author clodbrasilino
  */
 public interface Erro {
-
+    public String errosToString();
 }
