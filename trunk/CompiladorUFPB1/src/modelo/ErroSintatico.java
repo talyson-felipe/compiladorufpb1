@@ -14,6 +14,7 @@ import modelo.tipos.TipoErroSintatico;
 public class ErroSintatico extends Exception implements Erro {
 
     private Token token;
+    private Token tokenEsperado = null;
     private TipoErroSintatico tipoErro;
 
     public ErroSintatico(){
@@ -24,6 +25,13 @@ public class ErroSintatico extends Exception implements Erro {
         super();
         this.token = token;
         this.tipoErro = tipoErro;
+    }
+
+    public ErroSintatico(Token token, Token tokenEsperado, TipoErroSintatico tipoErro){
+        super();
+        this.token = token;
+        this.tipoErro = tipoErro;
+        this.tokenEsperado = tokenEsperado;
     }
 
     public TipoErroSintatico getTipoErro() {
