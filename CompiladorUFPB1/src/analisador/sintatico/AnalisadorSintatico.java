@@ -15,13 +15,13 @@ import modelo.tipos.TipoToken;
 public class AnalisadorSintatico {
 
     private List<Token> tokens;
-
+    List<Erro> erros;
     public AnalisadorSintatico(List<Token> tokens){
         this.tokens = tokens;
     }
 
     public List<Erro> analisar(){
-        List<Erro> erros = new ArrayList<Erro>();
+        erros = new ArrayList<Erro>();
         try {
             programa();
         } catch (ErroSintatico ex) {
@@ -468,6 +468,17 @@ public class AnalisadorSintatico {
         return atual;
     }
 
+
+    public String imprimeErros(){
+        String erroString="";
+        ErroSintatico erroSintatico;
+        for(Erro erro:erros){
+                erroSintatico =(ErroSintatico)erro;
+                erroString+=erroSintatico.errosToString();
+         }
+            return erroString;
+    }
+
     private boolean isProximoToken(TipoToken tipoToken) {
         return isProximoToken(tipoToken, null);
     }
@@ -489,4 +500,5 @@ public class AnalisadorSintatico {
             }
         }
     }
+
 }
