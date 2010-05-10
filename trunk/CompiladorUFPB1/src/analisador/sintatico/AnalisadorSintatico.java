@@ -22,6 +22,11 @@ public class AnalisadorSintatico {
 
     public List<Erro> analisar(){
         List<Erro> erros = new ArrayList<Erro>();
+        try {
+            programa();
+        } catch (ErroSintatico ex) {
+            erros.add(ex);
+        }
         return erros;
     }
 
@@ -36,13 +41,19 @@ public class AnalisadorSintatico {
     }
 
     public void declaracoesDeVariaveis() throws ErroSintatico {
-        consumir(TipoToken.PALAVRA_RESERVADA, "var");
-        listaDeDeclaracoesDeVariaveis();
-        // OU
-        return; // vazio
+
+        if (isProximoToken(TipoToken.PALAVRA_RESERVADA, "var")){
+            consumir(TipoToken.PALAVRA_RESERVADA, "var");
+            listaDeDeclaracoesDeVariaveis();
+            return;
+        }
+        
+        return; // VAZIO
+
     }
 
     public void listaDeDeclaracoesDeVariaveis() throws ErroSintatico {
+
         listaDeIdentificadores();
         consumir(TipoToken.DELIMITADOR, ":");
         tipo();
@@ -53,13 +64,15 @@ public class AnalisadorSintatico {
 
     public void listaDeDeclaracoesDeVariaveis1() throws ErroSintatico {
 
-        listaDeIdentificadores();
-        consumir(TipoToken.DELIMITADOR, ":");
-        tipo();
-        consumir(TipoToken.DELIMITADOR, ";");
-        listaDeDeclaracoesDeVariaveis1();
-        // OU
-        return; // vazio
+        if (isProximoToken(TipoToken.IDENTIFICADOR)) {
+            listaDeIdentificadores();
+            consumir(TipoToken.DELIMITADOR, ":");
+            tipo();
+            consumir(TipoToken.DELIMITADOR, ";");
+            listaDeDeclaracoesDeVariaveis1();
+            return;
+        }
+        return; // VAZIO
     }
 
     public void listaDeIdentificadores() throws ErroSintatico {
@@ -70,28 +83,46 @@ public class AnalisadorSintatico {
 
     public void listaDeIdentificadores1() throws ErroSintatico {
 
-        consumir(TipoToken.DELIMITADOR, ",");
-        consumir(TipoToken.IDENTIFICADOR);
-        listaDeIdentificadores1();
-        // OU
-        return; // vazio
+        if (isProximoToken(TipoToken.DELIMITADOR, ",")) {
+            consumir(TipoToken.DELIMITADOR, ",");
+            consumir(TipoToken.IDENTIFICADOR);
+            listaDeIdentificadores1();
+            return;
+        }
+
+        return; // VAZIO
         
     }
 
     public void tipo() throws ErroSintatico {
-        consumir(TipoToken.PALAVRA_RESERVADA, "integer");
-        // OU
-        consumir(TipoToken.PALAVRA_RESERVADA, "real");
-        // OU
-        consumir(TipoToken.PALAVRA_RESERVADA, "boolean");
+        if (isProximoToken(TipoToken.PALAVRA_RESERVADA, "integer")) {
+            consumir(TipoToken.PALAVRA_RESERVADA, "integer");
+            return;
+        }
+
+        if (isProximoToken(TipoToken.PALAVRA_RESERVADA, "real")){
+            consumir(TipoToken.PALAVRA_RESERVADA, "real");
+            return;
+        }
+
+        if (isProximoToken(TipoToken.PALAVRA_RESERVADA, "boolean")){
+            consumir(TipoToken.PALAVRA_RESERVADA, "boolean");
+            return;
+        }
+
+        throw new ErroSintatico(lerTokenDaLista(), TipoErroSintatico.TOKEN_ESPERADO);
+
     }
 
     public void declaracoesDeSubprogramas() throws ErroSintatico {
-        declaracaoDeSubprograma();
-        consumir(TipoToken.DELIMITADOR, ";");
-        declaracoesDeSubprogramas();
-        // OU
-        return; // vazio
+        if (isProximoToken(TipoToken.PALAVRA_RESERVADA, "procedure")) {
+            declaracaoDeSubprograma();
+            consumir(TipoToken.DELIMITADOR, ";");
+            declaracoesDeSubprogramas();
+            return;
+        }
+        
+        return; // VAZIO
     }
 
     public void declaracaoDeSubprograma() throws ErroSintatico {
@@ -105,10 +136,13 @@ public class AnalisadorSintatico {
     }
 
     public void argumentos() throws ErroSintatico {
-        consumir(TipoToken.DELIMITADOR, "(");
-        listaDeParametros();
-        consumir(TipoToken.DELIMITADOR, ")");
-        // ou
+        if (isProximoToken(TipoToken.DELIMITADOR, "(")) {
+            consumir(TipoToken.DELIMITADOR, "(");
+            listaDeParametros();
+            consumir(TipoToken.DELIMITADOR, ")");
+            return;
+        }
+        
         return; // vazio
     }
 
@@ -120,13 +154,16 @@ public class AnalisadorSintatico {
     }
 
     public void listaDeParametros1() throws ErroSintatico {
-        consumir(TipoToken.DELIMITADOR, ";");
-        listaDeIdentificadores();
-        consumir(TipoToken.DELIMITADOR, ":");
-        tipo();
-        listaDeParametros1();
-        // OU
-        return; //vazio
+        if (isProximoToken(TipoToken.DELIMITADOR, ";")) {
+            consumir(TipoToken.DELIMITADOR, ";");
+            listaDeIdentificadores();
+            consumir(TipoToken.DELIMITADOR, ":");
+            tipo();
+            listaDeParametros1();
+            return;
+        }
+        
+        return; // VAZIO
     }
 
     public void comandoComposto() throws ErroSintatico {
@@ -136,9 +173,15 @@ public class AnalisadorSintatico {
     }
 
     public void comandosOpcionais() throws ErroSintatico {
-        listaDeComandos();
-        // OU
-        return; // vazio
+        if (isProximoToken(TipoToken.IDENTIFICADOR) ||
+            isProximoToken(TipoToken.PALAVRA_RESERVADA, "begin") ||
+            isProximoToken(TipoToken.PALAVRA_RESERVADA, "if") ||
+            isProximoToken(TipoToken.PALAVRA_RESERVADA, "while")) {
+            listaDeComandos();
+            return;
+        }
+
+        return; // VAZIO
     }
 
     public void listaDeComandos() throws ErroSintatico {
@@ -147,39 +190,62 @@ public class AnalisadorSintatico {
     }
 
     public void listaDeComandos1() throws ErroSintatico {
-        consumir(TipoToken.DELIMITADOR, ";");
-        comando();
-        listaDeComandos1();
-        // OU
-        return; // vazio
+        if (isProximoToken(TipoToken.DELIMITADOR, ";")) {
+            consumir(TipoToken.DELIMITADOR, ";");
+            comando();
+            listaDeComandos1();
+            return;
+        }
+
+        return; // VAZIO
     }
 
     public void comando() throws ErroSintatico {
-        variavel();
-        consumir(TipoToken.COMANDO_ATRIBUICAO);
-        expressao();
-        //OU
-        ativacaoDeProcedimento();
-        //ou
-        comandoComposto();
-        // ou
-        consumir(TipoToken.PALAVRA_RESERVADA, "if");
-        expressao();
-        consumir(TipoToken.PALAVRA_RESERVADA, "then");
-        comando();
-        parteElse();
-        // ou
-        consumir(TipoToken.PALAVRA_RESERVADA, "while");
-        expressao();
-        consumir(TipoToken.PALAVRA_RESERVADA, "do");
-        comando();
+        if (isProximoToken(TipoToken.IDENTIFICADOR)) {
+            variavel();
+            consumir(TipoToken.COMANDO_ATRIBUICAO);
+            expressao();
+            return;
+        }
+
+        if (isProximoToken(TipoToken.IDENTIFICADOR)) {
+            ativacaoDeProcedimento();
+            return;
+        }
+
+        if (isProximoToken(TipoToken.PALAVRA_RESERVADA, "begin")) {
+            comandoComposto();
+            return;
+        }
+
+        if (isProximoToken(TipoToken.PALAVRA_RESERVADA, "if")) {
+            consumir(TipoToken.PALAVRA_RESERVADA, "if");
+            expressao();
+            consumir(TipoToken.PALAVRA_RESERVADA, "then");
+            comando();
+            parteElse();
+            return;
+        }
+
+        if (isProximoToken(TipoToken.PALAVRA_RESERVADA, "while")) {
+            consumir(TipoToken.PALAVRA_RESERVADA, "while");
+            expressao();
+            consumir(TipoToken.PALAVRA_RESERVADA, "do");
+            comando();
+            return;
+        }
+
+        throw new ErroSintatico(lerTokenDaLista(), TipoErroSintatico.TOKEN_ESPERADO);
     }
 
     public void parteElse() throws ErroSintatico {
-        consumir(TipoToken.PALAVRA_RESERVADA, "else");
-        comando();
-        // ou
-        return; // vazio
+        if (isProximoToken(TipoToken.PALAVRA_RESERVADA, "else")) {
+            consumir(TipoToken.PALAVRA_RESERVADA, "else");
+            comando();
+            return;
+        }
+
+        return; // VAZIO
     }
 
     public void variavel() throws ErroSintatico {
@@ -188,11 +254,19 @@ public class AnalisadorSintatico {
 
     public void ativacaoDeProcedimento() throws ErroSintatico {
         consumir(TipoToken.IDENTIFICADOR);
-        // ou
-        consumir(TipoToken.IDENTIFICADOR);
-        consumir(TipoToken.DELIMITADOR, "(");
-        listaDeExpressoes();
-        consumir(TipoToken.DELIMITADOR, ")");
+        ativacaoDeProcedimento1();
+        
+    }
+
+    public void ativacaoDeProcedimento1() throws ErroSintatico {
+        if (isProximoToken(TipoToken.DELIMITADOR, "(")) {
+            consumir(TipoToken.DELIMITADOR, "(");
+            listaDeExpressoes();
+            consumir(TipoToken.DELIMITADOR, ")");
+            return;
+        }
+
+        return; // VAZIO
     }
 
     public void listaDeExpressoes() throws ErroSintatico {
@@ -201,36 +275,66 @@ public class AnalisadorSintatico {
     }
 
     public void listaDeExpressoes1() throws ErroSintatico {
-        consumir(TipoToken.DELIMITADOR, ",");
-        expressao();
-        listaDeExpressoes1();
-        // ou
-        return; // vazio
+        if (isProximoToken(TipoToken.DELIMITADOR, ",")) {
+            consumir(TipoToken.DELIMITADOR, ",");
+            expressao();
+            listaDeExpressoes1();
+            return;
+        }
+
+        return; // VAZIO
     }
 
     public void expressao() throws ErroSintatico {
         expressaoSimples();
-        // ou
-        expressaoSimples();
-        operadorRelacional();
-        expressaoSimples();
+        expressao1();
+    }
+
+    public void expressao1() throws ErroSintatico {
+
+        if(isProximoToken(TipoToken.OPERADOR_RELACIONAL)) {
+            operadorRelacional();
+            expressaoSimples();
+            return;
+        }
+
+        return; // VAZIO
     }
 
     public void expressaoSimples() throws ErroSintatico {
-        termo();
-        expressaoSimples1();
-        // ou
-        sinal();
-        termo();
-        expressaoSimples1();
+        if (isProximoToken(TipoToken.IDENTIFICADOR) ||
+            isProximoToken(TipoToken.NUMERO_INTEIRO) ||
+            isProximoToken(TipoToken.NUMERO_REAL) ||
+            isProximoToken(TipoToken.PALAVRA_RESERVADA, "true") ||
+            isProximoToken(TipoToken.PALAVRA_RESERVADA, "false") ||
+            isProximoToken(TipoToken.DELIMITADOR, "(") ||
+            isProximoToken(TipoToken.DELIMITADOR, ")") ||
+            isProximoToken(TipoToken.PALAVRA_RESERVADA, "not")) {
+            termo();
+            expressaoSimples1();
+            return;
+        }
+
+        if (isProximoToken(TipoToken.OPERADOR_ADITIVO)) {
+            sinal();
+            termo();
+            expressaoSimples1();
+            return;
+        }
+
+        throw new ErroSintatico(lerTokenDaLista(), TipoErroSintatico.TOKEN_ESPERADO);
+
     }
 
     public void expressaoSimples1() throws ErroSintatico {
-        operadorAditivo();
-        termo();
-        expressaoSimples1();
-        // ou
-        return; // vazio
+        if (isProximoToken(TipoToken.OPERADOR_ADITIVO)) {
+            operadorAditivo();
+            termo();
+            expressaoSimples1();
+            return;
+        }
+
+        return; // VAZIO
     }
 
     public void termo() throws ErroSintatico {
@@ -239,35 +343,65 @@ public class AnalisadorSintatico {
     }
 
     public void termo1() throws ErroSintatico {
-        operadorMultiplicativo();
-        fator();
-        termo1();
-        // ou
-        return; // vazio
+        if (isProximoToken(TipoToken.OPERADOR_MULTIPLICATIVO)) {
+            operadorMultiplicativo();
+            fator();
+            termo1();
+            return;
+        }
+
+        return; // VAZIO
     }
 
     public void fator() throws ErroSintatico {
-        consumir(TipoToken.IDENTIFICADOR);
-        // ou
-        consumir(TipoToken.IDENTIFICADOR);
-        consumir(TipoToken.DELIMITADOR, "(");
-        listaDeExpressoes();
-        consumir(TipoToken.DELIMITADOR, ")");
-        // ou
-        consumir(TipoToken.NUMERO_INTEIRO);
-        // ou
-        consumir(TipoToken.NUMERO_REAL);
-        // ou
-        consumir(TipoToken.PALAVRA_RESERVADA, "true");
-        // ou
-        consumir(TipoToken.PALAVRA_RESERVADA, "false");
-        // ou
-        consumir(TipoToken.DELIMITADOR, "(");
-        expressao();
-        consumir(TipoToken.DELIMITADOR, ")");
-        // ou
-        consumir(TipoToken.PALAVRA_RESERVADA, "not");
-        fator();
+
+        if (isProximoToken(TipoToken.IDENTIFICADOR)) {
+            consumir(TipoToken.IDENTIFICADOR);
+            return;
+        }
+
+        if (isProximoToken(TipoToken.IDENTIFICADOR)) {
+            consumir(TipoToken.IDENTIFICADOR);
+            consumir(TipoToken.DELIMITADOR, "(");
+            listaDeExpressoes();
+            consumir(TipoToken.DELIMITADOR, ")");
+            return;
+        }
+
+        if (isProximoToken(TipoToken.NUMERO_INTEIRO)) {
+            consumir(TipoToken.NUMERO_INTEIRO);
+            return;
+        }
+        
+        if (isProximoToken(TipoToken.NUMERO_REAL)) {
+            consumir(TipoToken.NUMERO_REAL);
+            return;
+        }
+        
+        if (isProximoToken(TipoToken.PALAVRA_RESERVADA, "true")) {
+            consumir(TipoToken.PALAVRA_RESERVADA, "true");
+            return;
+        }
+
+        if (isProximoToken(TipoToken.PALAVRA_RESERVADA, "false")) {
+            consumir(TipoToken.PALAVRA_RESERVADA, "false");
+            return;
+        }
+
+        if (isProximoToken(TipoToken.DELIMITADOR, "(")) {
+            consumir(TipoToken.DELIMITADOR, "(");
+            expressao();
+            consumir(TipoToken.DELIMITADOR, ")");
+            return;
+        }
+
+        if (isProximoToken(TipoToken.PALAVRA_RESERVADA, "not")) {
+            consumir(TipoToken.PALAVRA_RESERVADA, "not");
+            fator();
+            return;
+        }
+
+        throw new ErroSintatico(lerTokenDaLista(), TipoErroSintatico.TOKEN_ESPERADO);
 
     }
 
@@ -284,9 +418,18 @@ public class AnalisadorSintatico {
     }
 
     public void operadorMultiplicativo() throws ErroSintatico {
-        consumir(TipoToken.OPERADOR_MULTIPLICATIVO);
-        // ou
-        consumir(TipoToken.PALAVRA_RESERVADA, "and");
+
+        if (isProximoToken(TipoToken.OPERADOR_MULTIPLICATIVO)) {
+            consumir(TipoToken.OPERADOR_MULTIPLICATIVO);
+            return;
+        }
+
+        if (isProximoToken(TipoToken.PALAVRA_RESERVADA, "and")) {
+            consumir(TipoToken.PALAVRA_RESERVADA, "and");
+            return;
+        }
+
+        throw new ErroSintatico(lerTokenDaLista(), TipoErroSintatico.TOKEN_ESPERADO);
     }
 
     public void consumir(TipoToken token) throws ErroSintatico {
@@ -323,5 +466,27 @@ public class AnalisadorSintatico {
             return null;
         }
         return atual;
+    }
+
+    private boolean isProximoToken(TipoToken tipoToken) {
+        return isProximoToken(tipoToken, null);
+    }
+
+    private boolean isProximoToken(TipoToken tipoToken, String tokenName) {
+        Token atual = lerTokenDaLista();
+        if (atual == null) {
+            return false;
+        }
+        if (atual.getSimbolo() == tipoToken || tokenName == null) {
+            return true;
+        }
+        else {
+            if (atual.getSimbolo() == tipoToken || atual.getToken().equals(tokenName)) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
     }
 }
