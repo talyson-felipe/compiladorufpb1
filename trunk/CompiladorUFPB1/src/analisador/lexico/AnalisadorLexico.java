@@ -131,20 +131,21 @@ public class AnalisadorLexico {
     public List<Token> getTokens(){
         return tokens;
     }
-    public String errosToString(){
+    public String imprimeErros(){
         String erroString="";
         for(Erro erro:erros){
-            if(erro instanceof ErroLexico){
+            //if(erro instanceof ErroLexico){
                 ErroLexico erroLexico =(ErroLexico)erro;
-                switch(erroLexico.getTipoErro()){
-                    case COMENTARIO_ABERTO:
-                        erroString += "Comentário iniciado na linha "+erroLexico.getToken().getLinha()+" não fechado devidamente.\n";
-                        break;
-                    case SIMBOLO_INEXISTENTE:     
-                        erroString += "O símbolo encontrado \"" + erroLexico.getToken().getToken() + "\" na linha "+erroLexico.getToken().getLinha()+" não é reconhecido.\n";
-                        break;
-                }
-            }
+              //  switch(erroLexico.getTipoErro()){
+                //    case COMENTARIO_ABERTO:
+               // erroString += "Comentário iniciado na linha "+erroLexico.getToken().getLinha()+" não fechado devidamente.\n";
+                  //      break;
+                    //case SIMBOLO_INEXISTENTE:
+                 //       erroString += "O símbolo encontrado \"" + erroLexico.getToken().getToken() + "\" na linha "+erroLexico.getToken().getLinha()+" não é reconhecido.\n";
+                   //     break;
+                //}
+            //}
+                erroString+=erroLexico.errosToString();
          }
             return erroString;
     }
