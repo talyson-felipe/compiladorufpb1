@@ -1,8 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package analisador.sintatico;
 
 import java.util.List;
@@ -30,7 +25,7 @@ public class AnalisadorSintatico {
         declaracoesDeVariaveis();
         declaracoesDeSubprogramas();
         comandoComposto();
-        consumir(TipoToken.DELIMITADOR);
+        consumir(TipoToken.DELIMITADOR, ".");
     }
 
     public void declaracoesDeVariaveis(){
@@ -292,22 +287,29 @@ public class AnalisadorSintatico {
     }
 
     public Boolean consumir(TipoToken tipoToken, String tokenName) {
-        Token atual = consumirTokenDaLista();
-        if (atual == null){
+        Token atual = lerTokenDaLista();
+        if (atual == null) {
             return false;
         }
-        if (atual.getSimbolo() == tipoToken || tokenName == null){
-            return true;            
+        if (atual.getSimbolo() == tipoToken || tokenName == null) {
+            consumirTokenDaLista();
+            return true;
         }
         else {
-            if (atual.getSimbolo() == tipoToken || atual.getToken().equals(tokenName))
+            if (atual.getSimbolo() == tipoToken || atual.getToken().equals(tokenName)) {
+                consumirTokenDaLista();
                 return true;
-            else
+            }
+            else {
                 return false;
+            }
         }
     }
 
-    private Token consumirTokenDaLista(){
+    private Token lerTokenDaLista() {
+        return tokens.get(0);
+    }
+    private Token consumirTokenDaLista() {
         Token atual = null;
         try {
             atual = tokens.get(0);
@@ -318,4 +320,3 @@ public class AnalisadorSintatico {
         return atual;
     }
 }
-
