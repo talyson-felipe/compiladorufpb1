@@ -49,4 +49,16 @@ public class ErroSintatico extends Exception implements Erro {
     public void setToken(Token token) {
         this.token = token;
     }
+    @Override
+    public String errosToString(){
+        switch(this.getTipoErro()){
+                    case TOKEN_ESPERADO:
+                        return "Token Esperado: "+this.getToken().getToken()+"Linha: "+this.getToken().getLinha()+" não é reconhecido.\n";
+                        //break;
+                    case FIM_INESPERADO:
+                        return  "Fim inesperado!  Linha:" + this.getToken().getLinha();
+                        //break;
+                }
+        return "";
+    }
 }
