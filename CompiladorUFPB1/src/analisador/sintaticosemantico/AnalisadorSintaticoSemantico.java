@@ -1,4 +1,4 @@
-package analisador.sintatico;
+package analisador.sintaticosemantico;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,12 +12,12 @@ import modelo.tipos.TipoToken;
  *
  * @author Clodoaldo Brasilino
  */
-public class AnalisadorSintatico {
+public class AnalisadorSintaticoSemantico {
 
     private List<Token> tokens;
     List<Erro> erros;
-    public AnalisadorSintatico(List<Token> tokens){
-        this.tokens = tokens;
+    public AnalisadorSintaticoSemantico(List<Token> tokens){
+        this.tokens = new ArrayList<Token>(tokens);
     }
 
     public List<Erro> analisar(){
@@ -33,7 +33,7 @@ public class AnalisadorSintatico {
     public void programa() throws ErroSintatico {
         consumir(TipoToken.PALAVRA_RESERVADA, "program");
         consumir(TipoToken.IDENTIFICADOR);
-        consumir(TipoToken.DELIMITADOR);
+        consumir(TipoToken.DELIMITADOR, ";");
         declaracoesDeVariaveis();
         declaracoesDeSubprogramas();
         comandoComposto();
@@ -184,13 +184,19 @@ public class AnalisadorSintatico {
         return; // VAZIO
     }
 
+    // TODO Clodoaldo: Corrigir a lista de composto
     public void listaDeComandos() throws ErroSintatico {
         comando();
         listaDeComandos1();
     }
 
     public void listaDeComandos1() throws ErroSintatico {
-        if (isProximoToken(TipoToken.DELIMITADOR, ";")) {
+
+        if (isProximoToken(TipoToken.IDENTIFICADOR) ||
+            isProximoToken(TipoToken.PALAVRA_RESERVADA, "begin") ||
+            isProximoToken(TipoToken.PALAVRA_RESERVADA, "if") ||
+            isProximoToken(TipoToken.PALAVRA_RESERVADA, "while") ||
+            isProximoToken(TipoToken.DELIMITADOR, ";")) {
             consumir(TipoToken.DELIMITADOR, ";");
             comando();
             listaDeComandos1();
@@ -202,15 +208,17 @@ public class AnalisadorSintatico {
 
     public void comando() throws ErroSintatico {
         if (isProximoToken(TipoToken.IDENTIFICADOR)) {
-            variavel();
-            consumir(TipoToken.COMANDO_ATRIBUICAO);
-            expressao();
-            return;
-        }
-
-        if (isProximoToken(TipoToken.IDENTIFICADOR)) {
-            ativacaoDeProcedimento();
-            return;
+            if (isProximoToken(TipoToken.COMANDO_ATRIBUICAO, 1)){
+                variavel();
+                consumir(TipoToken.COMANDO_ATRIBUICAO);
+                expressao();
+                return;
+            }
+            if (isProximoToken(TipoToken.DELIMITADOR, "(", 1)) {
+                ativacaoDeProcedimento();
+                return;
+            }
+            
         }
 
         if (isProximoToken(TipoToken.PALAVRA_RESERVADA, "begin")) {
@@ -235,7 +243,7 @@ public class AnalisadorSintatico {
             return;
         }
 
-        throw new ErroSintatico(lerTokenDaLista(), TipoErroSintatico.TOKEN_ESPERADO);
+        return; // VAZIO
     }
 
     public void parteElse() throws ErroSintatico {
@@ -441,11 +449,11 @@ public class AnalisadorSintatico {
         if (atual == null) {
             throw new ErroSintatico(atual, TipoErroSintatico.FIM_INESPERADO);
         }
-        if (atual.getSimbolo() == tipoToken || tokenName == null) {
+        if (atual.getSimbolo() == tipoToken && tokenName == null) {
             consumirTokenDaLista();
         }
         else {
-            if (atual.getSimbolo() == tipoToken || atual.getToken().equals(tokenName)) {
+            if (atual.getSimbolo() == tipoToken && atual.getToken().equals(tokenName)) {
                 consumirTokenDaLista();
             }
             else {
@@ -455,8 +463,22 @@ public class AnalisadorSintatico {
     }
 
     private Token lerTokenDaLista() {
-        return tokens.get(0);
+        try {
+            return tokens.get(0);
+        } catch (IndexOutOfBoundsException ex){
+            return null;
+        }
     }
+    
+    private Token lerTokenDaLista(int index) {
+        try {
+            return tokens.get(index);
+        } catch (IndexOutOfBoundsException ex){
+            return null;
+        }
+    }
+
+
     private Token consumirTokenDaLista() {
         Token atual = null;
         try {
@@ -488,11 +510,11 @@ public class AnalisadorSintatico {
         if (atual == null) {
             return false;
         }
-        if (atual.getSimbolo() == tipoToken || tokenName == null) {
+        if (atual.getSimbolo() == tipoToken && tokenName == null) {
             return true;
         }
         else {
-            if (atual.getSimbolo() == tipoToken || atual.getToken().equals(tokenName)) {
+            if (atual.getSimbolo() == tipoToken && atual.getToken().equals(tokenName)) {
                 return true;
             }
             else {
@@ -501,4 +523,25 @@ public class AnalisadorSintatico {
         }
     }
 
+    private boolean isProximoToken(TipoToken tipoToken, int index) {
+        return isProximoToken(tipoToken, null, index);
+    }
+
+    private boolean isProximoToken(TipoToken tipoToken, String tokenName,int index) {
+        Token atual = lerTokenDaLista(index);
+        if (atual == null) {
+            return false;
+        }
+        if (atual.getSimbolo() == tipoToken && tokenName == null) {
+            return true;
+        }
+        else {
+            if (atual.getSimbolo() == tipoToken && atual.getToken().equals(tokenName)) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+    }
 }

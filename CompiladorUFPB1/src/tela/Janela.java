@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import analisador.lexico.AnalisadorLexico;
+import analisador.sintaticosemantico.AnalisadorSintaticoSemantico;
 import java.util.List;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import modelo.Token;
@@ -205,7 +206,9 @@ public class Janela extends javax.swing.JFrame {
     }//GEN-LAST:event_openActionPerformed
 
     private void analisarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_analisarActionPerformed
-        
+
+            limparErros();
+            limparTabelaDeTokens();
             analisador.setCodigoFonte(textoCodigo.getText());
             analisador.analisar();
 
@@ -217,8 +220,11 @@ public class Janela extends javax.swing.JFrame {
             //Exibe na tabela a lista de tokens
             InserirTabela(tokens);
 
+            AnalisadorSintaticoSemantico sintatico = new AnalisadorSintaticoSemantico(tokens);
+            sintatico.analisar();
+
             // Exibe na tela erros do analisador.
-            textoErro.setText(analisador.errosToString());
+            textoErro.setText(analisador.imprimeErros() + sintatico.imprimeErros());
 
     }//GEN-LAST:event_analisarActionPerformed
 
@@ -292,4 +298,12 @@ public class Janela extends javax.swing.JFrame {
     private javax.swing.JTextArea textoErro;
     private javax.swing.JTable textoTabela;
     // End of variables declaration//GEN-END:variables
+
+    private void limparErros() {
+        textoErro.setText("");
+    }
+
+    private void limparTabelaDeTokens() {
+        textoTabela.removeAll();
+    }
 }
