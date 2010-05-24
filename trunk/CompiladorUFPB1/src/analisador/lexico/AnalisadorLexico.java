@@ -39,7 +39,6 @@ public class AnalisadorLexico {
         regexEstadosAnalisadorLexico = ResourceBundle.getBundle("analisador.lexico.properties.RegexAutomato");
         erros = new ArrayList<Erro>();
         tokens = new ArrayList<Token>();
-
     }
 
     public String currentChar(){
@@ -60,6 +59,9 @@ public class AnalisadorLexico {
     }
 
     public void analisar() {
+
+        erros = new ArrayList<Erro>();
+        tokens = new ArrayList<Token>();
         
         index = 0;
         numeroDaLinha = 1;
@@ -99,7 +101,8 @@ public class AnalisadorLexico {
             } else if (Pattern.matches(regexEstadosAnalisadorLexico.getString("i0I"), currentChar().toString())) {
                 token += currentChar();
                 estadoI();
-            } else if (Pattern.matches(regexEstadosAnalisadorLexico.getString("i0L"), currentChar().toString())) {
+            } else if (Pattern.matches(regexEstadosAnalisadorLexico.getString("i0L"), currentChar().toString()) ||
+                       Pattern.matches(",", currentChar().toString())) {
                 token += currentChar();
                 estadoL();
             } else if (Pattern.matches(regexEstadosAnalisadorLexico.getString("i0N"), currentChar().toString())) {
