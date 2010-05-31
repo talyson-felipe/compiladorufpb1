@@ -5,6 +5,7 @@
 
 package analisador.semantico;
 
+import modelo.VariavelJaDeclaradaException;
 import modelo.VariavelNaoEncontradaException;
 import modelo.Variavel;
 import modelo.tipos.TipoVariavel;

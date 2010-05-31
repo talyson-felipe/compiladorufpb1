@@ -8,7 +8,6 @@ package analisador.semantico;
 import java.util.HashMap;
 import java.util.Map;
 import modelo.Variavel;
-import modelo.Variavel;
 import modelo.tipos.TipoVariavel;
 
 /**
