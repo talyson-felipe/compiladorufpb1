@@ -3,9 +3,7 @@
  * and open the template in the editor.
  */
 
-package analisador.semantico;
-
-import modelo.ErroSemantico;
+package modelo;
 
 /**
  *
