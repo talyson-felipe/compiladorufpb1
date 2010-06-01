@@ -5,6 +5,8 @@
 
 package analisador.semantico;
 
+import java.util.Stack;
+import modelo.ErroSemantico;
 import modelo.VariavelJaDeclaradaException;
 import modelo.VariavelNaoEncontradaException;
 import modelo.Variavel;
@@ -24,14 +26,19 @@ public class Escopo {
         this.variaveis = new TabelaDeVariaveis();
     }
 
+    public Escopo getPai(){
+        return pai;
+    }
+
     public Variavel getVariavel(String identificador, int linha) throws VariavelNaoEncontradaException {
         Variavel procurada;
         procurada = variaveis.get(identificador);
         if(procurada == null){
             if (pai == null){
                 throw new VariavelNaoEncontradaException(identificador, linha);
+            } else {
+                procurada = pai.getVariavel(identificador, linha);
             }
-            procurada = pai.getVariavel(identificador, linha);
         }
         return procurada;
     }
@@ -42,6 +49,14 @@ public class Escopo {
         }
         else {
             variaveis.create(identificador, tipo);
+        }
+    }
+
+    public void addVariaveis(Stack<Object> s) throws VariavelJaDeclaradaException, ErroSemantico{
+        if(variaveis.areDeclarada(s)){
+            throw new VariavelJaDeclaradaException("", 0); // Ver como identificar a linha do erro de lista
+        } else {
+            variaveis.createAll(s);
         }
     }
 
