@@ -21,7 +21,7 @@ public class VariavelJaDeclaradaException extends ErroSemantico {
     }
 
     public String errosToString() {
-        return "Variável \"" + identificador + "\" na linha " + linha + "Já foi declarada.";
+        return "Variável \"" + identificador + "\" na linha " + linha + " já foi declarada.";
     }
 
 }
