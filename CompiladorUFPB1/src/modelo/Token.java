@@ -56,4 +56,31 @@ public class Token {
     public String toString(){
         return "Token: ["+ token+ ", "+ simbolo+ ", "+ linha+ "]";
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Token other = (Token) obj;
+        if ((this.token == null) ? (other.token != null) : !this.token.equals(other.token)) {
+            return false;
+        }
+        if (this.simbolo != other.simbolo && (this.simbolo == null || !this.simbolo.equals(other.simbolo))) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 71 * hash + (this.token != null ? this.token.hashCode() : 0);
+        hash = 71 * hash + (this.simbolo != null ? this.simbolo.hashCode() : 0);
+        return hash;
+    }
+
 }

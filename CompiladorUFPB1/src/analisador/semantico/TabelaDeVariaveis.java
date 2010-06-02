@@ -5,11 +5,9 @@
 
 package analisador.semantico;
 
-import java.util.ArrayList;
-import java.util.Stack;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import modelo.ErroSemantico;
 import modelo.Token;
 import modelo.Variavel;
@@ -28,17 +26,13 @@ public class TabelaDeVariaveis {
         variaveis = new HashMap<String, Variavel>();
     }
 
-    public boolean areDeclarada(Stack<Object> s){
-        for (Object o: s){
-
-            if (o instanceof Token){
-                Token t = (Token) o;
-                if(!isDeclarada(t.getToken())){
-                    return false;
-                }
+    public boolean areDeclarada(Set<Token> s){
+        for (Token t: s){
+            if(isDeclarada(t.getToken())){
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     public boolean isDeclarada(String chave){
@@ -49,15 +43,9 @@ public class TabelaDeVariaveis {
         return variaveis.get(chave);
     }
 
-    public void createAll(Stack<Object> tokens) throws ErroSemantico {
+    public void createAll(Set<Token> tokens, TipoVariavel t) throws ErroSemantico {
         try {
-            TipoVariavel t = (TipoVariavel) tokens.pop();
-            List<Token> identificadores = new ArrayList<Token>();
-            while(!tokens.isEmpty()) {
-                identificadores.add((Token) tokens.pop());
-            }
-
-            for(Token identificador: identificadores) {
+            for(Token identificador: tokens) {
                 create(identificador.getToken(), t);
             }
         } catch (NullPointerException ex) {

@@ -3,13 +3,15 @@ package analisador.sintaticosemantico;
 import analisador.semantico.ChecagemDeTipos;
 import analisador.semantico.Escopo;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Stack;
+import java.util.Set;
 import modelo.ErroSemantico;
 import modelo.ErroSintatico;
 import modelo.Token;
 import modelo.Erro;
 import modelo.Variavel;
+import modelo.VariavelJaDeclaradaException;
 import modelo.tipos.TipoErroSintatico;
 import modelo.tipos.TipoToken;
 import modelo.tipos.TipoVariavel;
@@ -23,8 +25,9 @@ public class AnalisadorSintaticoSemantico {
     private Escopo escopoAtual = null;
     private List<Token> tokens;
     private List<Erro> erros = null;
-    private Stack<Object> pilhaDeDeclaracao = new Stack<Object>();
-    private ChecagemDeTipos checagemDeTipos = new ChecagemDeTipos();
+    private Set<Token> conjuntoDeDeclaracoes;
+    private ChecagemDeTipos checagemAtribuicao;
+    private ChecagemDeTipos checagemExpressao;
 
     public AnalisadorSintaticoSemantico(List<Token> tokens){
         this.tokens = new ArrayList<Token>(tokens);
@@ -76,11 +79,12 @@ public class AnalisadorSintaticoSemantico {
 
     public void listaDeDeclaracoesDeVariaveis() throws ErroSintatico, ErroSemantico {
 
+        conjuntoDeDeclaracoes = new HashSet<Token>();
         listaDeIdentificadores();
         consumir(TipoToken.DELIMITADOR, ":");
-        pilhaDeDeclaracao.push(tipo());
+        TipoVariavel tipoVariavel = tipo();
         consumir(TipoToken.DELIMITADOR, ";");
-        escopoAtual.addVariaveis(pilhaDeDeclaracao);
+        escopoAtual.addVariaveis(conjuntoDeDeclaracoes, tipoVariavel);
         listaDeDeclaracoesDeVariaveis1();
 
     }
@@ -88,28 +92,32 @@ public class AnalisadorSintaticoSemantico {
     public void listaDeDeclaracoesDeVariaveis1() throws ErroSintatico, ErroSemantico {
 
         if (isProximoToken(TipoToken.IDENTIFICADOR)) {
+            conjuntoDeDeclaracoes = new HashSet<Token>();
             listaDeIdentificadores();
             consumir(TipoToken.DELIMITADOR, ":");
-            pilhaDeDeclaracao.push(tipo());
+            TipoVariavel tipoVariavel = tipo();
             consumir(TipoToken.DELIMITADOR, ";");
-            escopoAtual.addVariaveis(pilhaDeDeclaracao);
+            escopoAtual.addVariaveis(conjuntoDeDeclaracoes, tipoVariavel);
             listaDeDeclaracoesDeVariaveis1();
             return;
         }
         return; // VAZIO
     }
 
-    public void listaDeIdentificadores() throws ErroSintatico {
+    public void listaDeIdentificadores() throws ErroSintatico, ErroSemantico {
 
-        pilhaDeDeclaracao.push(consumir(TipoToken.IDENTIFICADOR));
+        conjuntoDeDeclaracoes.add(consumir(TipoToken.IDENTIFICADOR));
         listaDeIdentificadores1();
     }
 
-    public void listaDeIdentificadores1() throws ErroSintatico {
+    public void listaDeIdentificadores1() throws ErroSintatico, ErroSemantico {
 
         if (isProximoToken(TipoToken.DELIMITADOR, ",")) {
             consumir(TipoToken.DELIMITADOR, ",");
-            pilhaDeDeclaracao.push(consumir(TipoToken.IDENTIFICADOR));
+            Token t = consumir(TipoToken.IDENTIFICADOR);
+            if (!conjuntoDeDeclaracoes.add(t)) {
+                throw new VariavelJaDeclaradaException(t.getToken(), t.getLinha());
+            }
             listaDeIdentificadores1();
             return;
         }
@@ -173,20 +181,24 @@ public class AnalisadorSintaticoSemantico {
     }
 
     public void listaDeArgumentos() throws ErroSintatico, ErroSemantico {
+        conjuntoDeDeclaracoes = new HashSet<Token>();
         listaDeIdentificadores();
         consumir(TipoToken.DELIMITADOR, ":");
-        pilhaDeDeclaracao.push(tipo());
+        TipoVariavel tipoVariavel = tipo();
+        escopoAtual.addVariaveis(conjuntoDeDeclaracoes, tipoVariavel);
         listaDeArgumentos1();
-        escopoAtual.addVariaveis(pilhaDeDeclaracao);
+
         
     }
 
-    public void listaDeArgumentos1() throws ErroSintatico {
+    public void listaDeArgumentos1() throws ErroSintatico, ErroSemantico {
         if (isProximoToken(TipoToken.DELIMITADOR, ";")) {
             consumir(TipoToken.DELIMITADOR, ";");
+            conjuntoDeDeclaracoes = new HashSet<Token>();
             listaDeIdentificadores();
             consumir(TipoToken.DELIMITADOR, ":");
-            pilhaDeDeclaracao.push(tipo());
+            TipoVariavel tipoVariavel = tipo();
+            escopoAtual.addVariaveis(conjuntoDeDeclaracoes, tipoVariavel);
             listaDeArgumentos1();
             return;
         }
@@ -238,10 +250,11 @@ public class AnalisadorSintaticoSemantico {
         if (isProximoToken(TipoToken.IDENTIFICADOR)) {
             if (isProximoToken(TipoToken.COMANDO_ATRIBUICAO, 1)){
                 Variavel v1 = variavel();
-                checagemDeTipos = new ChecagemDeTipos();
-                checagemDeTipos.push(v1.getTipo());
+                checagemAtribuicao = new ChecagemDeTipos();
+                checagemAtribuicao.push(v1.getTipo());
                 consumir(TipoToken.COMANDO_ATRIBUICAO);
-                expressao();
+                checagemAtribuicao.push(expressao());
+                checagemAtribuicao.avaliarAtribuicao();
                 return;
             }
             if (isProximoToken(TipoToken.DELIMITADOR, "(", 1)) {
@@ -325,9 +338,11 @@ public class AnalisadorSintaticoSemantico {
         return; // VAZIO
     }
 
-    public void expressao() throws ErroSintatico, ErroSemantico {
+    public TipoVariavel expressao() throws ErroSintatico, ErroSemantico {
+        checagemExpressao = new ChecagemDeTipos();
         expressaoSimples();
         expressao1();
+        return checagemExpressao.avaliar();
     }
 
     public void expressao1() throws ErroSintatico, ErroSemantico {
@@ -393,12 +408,12 @@ public class AnalisadorSintaticoSemantico {
         return; // VAZIO
     }
 
-    // TODO: CLODOALDO - COMO RETORNAR O TIPO AQUI???
     public void fator() throws ErroSintatico, ErroSemantico {
 
         if (isProximoToken(TipoToken.IDENTIFICADOR)) {
             Token t = consumir(TipoToken.IDENTIFICADOR);
-            escopoAtual.getVariavel(t.getToken(), t.getLinha());
+            Variavel v = escopoAtual.getVariavel(t.getToken(), t.getLinha());
+            checagemExpressao.push(v.getTipo());
             return;
             
         }
@@ -413,21 +428,25 @@ public class AnalisadorSintaticoSemantico {
 
         if (isProximoToken(TipoToken.NUMERO_INTEIRO)) {
             consumir(TipoToken.NUMERO_INTEIRO);
+            checagemExpressao.push(TipoVariavel.INTEGER);
             return;
         }
         
         if (isProximoToken(TipoToken.NUMERO_REAL)) {
             consumir(TipoToken.NUMERO_REAL);
+            checagemExpressao.push(TipoVariavel.REAL);
             return;
         }
         
         if (isProximoToken(TipoToken.PALAVRA_RESERVADA, "true")) {
             consumir(TipoToken.PALAVRA_RESERVADA, "true");
+            checagemExpressao.push(TipoVariavel.BOOLEAN);
             return;
         }
 
         if (isProximoToken(TipoToken.PALAVRA_RESERVADA, "false")) {
             consumir(TipoToken.PALAVRA_RESERVADA, "false");
+            checagemExpressao.push(TipoVariavel.BOOLEAN);
             return;
         }
 
