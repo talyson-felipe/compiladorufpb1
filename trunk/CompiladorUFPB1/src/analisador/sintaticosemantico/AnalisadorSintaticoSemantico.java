@@ -44,7 +44,7 @@ public class AnalisadorSintaticoSemantico {
         }
         return erros;
     }
-
+    
     private void criarEscopo(){
         escopoAtual = new Escopo(escopoAtual);
     }
@@ -55,10 +55,12 @@ public class AnalisadorSintaticoSemantico {
 
     public void programa() throws ErroSintatico, ErroSemantico {
         consumir(TipoToken.PALAVRA_RESERVADA, "program");
+        //Inicio do escopo principal
         consumir(TipoToken.IDENTIFICADOR);
         consumir(TipoToken.DELIMITADOR, ";");
         criarEscopo();
         declaracoesDeVariaveis();
+        //Inicio do escopo de subprogramas
         declaracoesDeSubprogramas();
         comandoComposto();
         consumir(TipoToken.DELIMITADOR, ".");
@@ -145,7 +147,7 @@ public class AnalisadorSintaticoSemantico {
         throw new ErroSintatico(lerTokenDaLista(), TipoErroSintatico.TOKEN_ESPERADO);
 
     }
-
+    //Inicio de escopo
     public void declaracoesDeSubprogramas() throws ErroSintatico, ErroSemantico {
         if (isProximoToken(TipoToken.PALAVRA_RESERVADA, "procedure")) {
             declaracaoDeSubprograma();

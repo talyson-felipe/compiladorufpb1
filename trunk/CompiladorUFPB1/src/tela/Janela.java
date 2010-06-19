@@ -10,6 +10,7 @@
  */
 package tela;
 
+import analisador.core.Controller;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -62,16 +63,18 @@ public class Janela extends javax.swing.JFrame {
         analisar = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
         textoTabela = new javax.swing.JTable();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        textoIJVM = new javax.swing.JTextArea();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         open = new javax.swing.JMenuItem();
         separador2 = new javax.swing.JPopupMenu.Separator();
         exit = new javax.swing.JMenuItem();
         about = new javax.swing.JMenu();
-        jMenuItem2 = new javax.swing.JMenuItem();
+        instrucoes = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Analisador Lexico");
+        setTitle("Interpretador Pascal / IJVM 0.1");
         setResizable(false);
 
         textoCodigo.setColumns(20);
@@ -119,10 +122,15 @@ public class Janela extends javax.swing.JFrame {
         textoTabela.getColumnModel().getColumn(2).setResizable(false);
         textoTabela.getColumnModel().getColumn(2).setPreferredWidth(2);
 
-        jMenu1.setText("File");
+        textoIJVM.setColumns(20);
+        textoIJVM.setRows(5);
+        textoIJVM.setBorder(javax.swing.BorderFactory.createTitledBorder("IJVM"));
+        jScrollPane4.setViewportView(textoIJVM);
+
+        jMenu1.setText("Arquivo");
 
         open.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
-        open.setText("Open");
+        open.setText("Abrir");
         open.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 openActionPerformed(evt);
@@ -142,11 +150,16 @@ public class Janela extends javax.swing.JFrame {
 
         jMenuBar1.add(jMenu1);
 
-        about.setText("Help");
+        about.setText("Ajuda");
 
-        jMenuItem2.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_A, java.awt.event.InputEvent.CTRL_MASK));
-        jMenuItem2.setText("About");
-        about.add(jMenuItem2);
+        instrucoes.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_A, java.awt.event.InputEvent.CTRL_MASK));
+        instrucoes.setText("Instruções de uso");
+        instrucoes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                instrucoesActionPerformed(evt);
+            }
+        });
+        about.add(instrucoes);
 
         jMenuBar1.add(about);
 
@@ -163,8 +176,10 @@ public class Janela extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 352, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
-                                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 377, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(18, 18, 18)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 377, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 377, Short.MAX_VALUE)))
                             .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 747, Short.MAX_VALUE)
                             .addComponent(separador1, javax.swing.GroupLayout.DEFAULT_SIZE, 747, Short.MAX_VALUE)))
                     .addGroup(layout.createSequentialGroup()
@@ -176,10 +191,15 @@ public class Janela extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jScrollPane3, 0, 0, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 211, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(12, 12, 12))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 446, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
                 .addComponent(separador1, javax.swing.GroupLayout.PREFERRED_SIZE, 6, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -226,7 +246,18 @@ public class Janela extends javax.swing.JFrame {
             // Exibe na tela erros do analisador.
             textoErro.setText(analisador.imprimeErros() + sintatico.imprimeErros());
 
+            Controller controller = Controller.getInstance();
+
+            String inputCode = getInputTextArea().getText();
+
+            controller.generateIJVMCode(inputCode, this);
+
     }//GEN-LAST:event_analisarActionPerformed
+
+    private void instrucoesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_instrucoesActionPerformed
+        // TODO add your handling code here:
+        new JanelaAjuda().setVisible(true);
+    }//GEN-LAST:event_instrucoesActionPerformed
 
     /**
      * @param args the command line arguments
@@ -273,6 +304,14 @@ public class Janela extends javax.swing.JFrame {
         }
     }
 
+    public javax.swing.JTextArea getIjvmTextArea() {
+        return textoIJVM;
+    }
+
+    public javax.swing.JTextArea getInputTextArea() {
+        return textoCodigo;
+    }
+
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
 
@@ -285,17 +324,19 @@ public class Janela extends javax.swing.JFrame {
     private javax.swing.JMenu about;
     private javax.swing.JButton analisar;
     private javax.swing.JMenuItem exit;
+    private javax.swing.JMenuItem instrucoes;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JMenuItem open;
     private javax.swing.JSeparator separador1;
     private javax.swing.JPopupMenu.Separator separador2;
     private javax.swing.JTextArea textoCodigo;
     private javax.swing.JTextArea textoErro;
+    private javax.swing.JTextArea textoIJVM;
     private javax.swing.JTable textoTabela;
     // End of variables declaration//GEN-END:variables
 
