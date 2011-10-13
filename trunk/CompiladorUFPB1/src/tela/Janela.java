@@ -245,17 +245,16 @@ public class Janela extends javax.swing.JFrame {
 
             // Exibe na tela erros do analisador.
             textoErro.setText(analisador.imprimeErros() + sintatico.imprimeErros());
-
+            //if(analisador.getErros().isEmpty() == false && sintatico.getErros().isEmpty() == false)  {
             Controller controller = Controller.getInstance();
 
             String inputCode = getInputTextArea().getText();
 
             controller.generateIJVMCode(inputCode, this);
-
+            //}
     }//GEN-LAST:event_analisarActionPerformed
 
     private void instrucoesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_instrucoesActionPerformed
-        // TODO add your handling code here:
         new JanelaAjuda().setVisible(true);
     }//GEN-LAST:event_instrucoesActionPerformed
 

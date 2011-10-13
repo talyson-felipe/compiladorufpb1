@@ -25,12 +25,18 @@ public class AnalisadorSintaticoSemantico {
     private Escopo escopoAtual = null;
     private List<Token> tokens;
     private List<Erro> erros = null;
+
+
     private Set<Token> conjuntoDeDeclaracoes;
     private ChecagemDeTipos checagemAtribuicao;
     private ChecagemDeTipos checagemExpressao;
 
     public AnalisadorSintaticoSemantico(List<Token> tokens){
         this.tokens = new ArrayList<Token>(tokens);
+    }
+
+    public List<Erro> getErros() {
+        return erros;
     }
 
     public List<Erro> analisar(){
