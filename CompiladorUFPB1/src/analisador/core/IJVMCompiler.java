@@ -263,7 +263,7 @@ public class IJVMCompiler extends Compiler {
         matchString("=");
         boolExpression();
         instructionStore(name);
-    }
+        }
     
     // last version
     // translate a factor
@@ -880,9 +880,11 @@ public class IJVMCompiler extends Compiler {
 
     // Search for a String in table. Used for looking for keywords and symbols
     private int lookup(String s, String[] list, int size) {
-        for (int i = 0; i < size; i++)
-            if (list[i].compareTo(s) == 0)
+        for (int i = 0; i < size; i++) {
+            if (list[i].compareTo(s) == 0) {
                 return i;
+            }
+        }
 
         return -1;
     }
@@ -963,8 +965,9 @@ public class IJVMCompiler extends Compiler {
     }
 
     private void checkTable(String name) throws UndefinedException {
-        if ( !inTable(name) )
+        if ( !inTable(name) ) {
             throw new UndefinedException(name);
+        }
     }
 
     // adds a new identifier to Symbols Table
@@ -1097,7 +1100,7 @@ public class IJVMCompiler extends Compiler {
 	String jump = "";
 
         System.out.println("token = " + token);
-        System.out.println("whilee");
+        System.out.println("while");
         System.out.println("value = " + getString(value));
 
 	int l1 = newLabel();
@@ -1105,7 +1108,7 @@ public class IJVMCompiler extends Compiler {
 
 	switch (op) {
 	  case '=': jump = "if_icmpeq"; break;
-	  case '#': jump = null; break; //TODO procurar instrução not para fazer esse comando
+	  case '#': jump = "if_icmpneq"; break; //TODO procurar instrução not para fazer esse comando
 	  case '<': jump = "isub\niflt"; break;
 	  case '>': jump = "swap\nisub\niflt"; break;
 	}

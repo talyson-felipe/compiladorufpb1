@@ -99,7 +99,6 @@ public class JanelaAjuda extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void fecharActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fecharActionPerformed
-        // TODO add your handling code here:
         dispose();
     }//GEN-LAST:event_fecharActionPerformed
 
